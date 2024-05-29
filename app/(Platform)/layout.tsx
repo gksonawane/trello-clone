@@ -2,6 +2,7 @@
 
 import React from "react";
 import { ClerkProvider } from "@clerk/nextjs";
+import {Toaster} from "sonner";
 
 const PlatFormLayout = ({
     children
@@ -10,6 +11,7 @@ const PlatFormLayout = ({
 }) => {
     return(
         <ClerkProvider>
+            <Toaster/>
             { children }
         </ClerkProvider>
     )

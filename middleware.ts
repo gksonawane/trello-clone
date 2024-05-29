@@ -66,6 +66,9 @@ export default clerkMiddleware((auth, request) => {
             path = `/organization/${orgId}`;
         }
 
+
+
+
         const redirectTo = new URL(path, request.url);
         return NextResponse.redirect(redirectTo);
     }
