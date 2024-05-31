@@ -5,6 +5,10 @@ import { ListForm } from "./list-form"
 import {useEffect, useState} from "react";
 import {ListItem} from "./list-item";
 import {DragDropContext, Droppable} from "@hello-pangea/dnd";
+import {useAction} from "@/hooks/create-actions";
+import {updateListOrder} from "@/actions/update-list-order";
+import {toast} from "sonner";
+import {updateCardOrder} from "@/actions/update-card-order";
 
 
 interface ListContainerProps{
@@ -18,6 +22,24 @@ export const ListContainer = ({
 }:ListContainerProps)=>{
 
     const [ orderedData, setOrderedData ] = useState(data);
+
+    const { execute : executeUpdateListOrder } = useAction(updateListOrder,{
+        onSuccess : () => {
+            toast.success("List reorder");
+        },
+        onError : (error) => {
+            toast.error(error);
+        }
+    });
+
+    const { execute : executeUpdateCardOrder } = useAction(updateCardOrder,{
+        onSuccess : () => {
+            toast.success("Card reorder");
+        },
+        onError : (error) => {
+            toast.error(error);
+        }
+    });
 
     function reorder<T>(list:T[], startIndex:number , endIndex:number){
         const result = Array.from(list);
@@ -49,9 +71,14 @@ export const ListContainer = ({
                 destination.index
             ).map((item, index) => ({...item, order:index}) );
             setOrderedData(items);
+
+            executeUpdateListOrder({
+                items,
+                boardId
+            });
         }
 
-        // todo:server action to trigger backed
+
 
     //     if a user tries to move a card
         if(type === "card") {
@@ -88,7 +115,11 @@ export const ListContainer = ({
                 sourceList.cards = reorderedCards;
 
                 setOrderedData(newOrderedData);
-            //     todo : trigger server action
+
+                executeUpdateCardOrder({
+                    boardId: boardId,
+                    items: reorderedCards
+                });
 
             //     user moves the card to another list
             }else{
@@ -113,6 +144,10 @@ export const ListContainer = ({
 
                 setOrderedData(newOrderedData);
             //     todo:trigger server action
+                executeUpdateCardOrder({
+                    boardId: boardId,
+                    items: destinationList.cards
+                });
             }
         }
     };
