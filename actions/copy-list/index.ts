@@ -5,6 +5,8 @@ import {db} from "@/lib/db";
 import {revalidatePath} from "next/cache";
 import {createSafeActions} from "@/lib/create-safe-actions";
 import {CopyList} from "./schema";
+import {createAuditLog} from "@/lib/create-audit-log";
+import {ACTION, ENTITY_TYPE} from "@prisma/client";
 
 
 
@@ -71,7 +73,15 @@ const handler = async (data:InputType):Promise<ReturnType> => {
            include : {
                cards : true,
            }
-       })
+       });
+
+        await createAuditLog({
+            entityId : list.id,
+            entityTitle : list.title,
+            entityType : ENTITY_TYPE.LIST,
+            action : ACTION.CREATE
+        });
+
     }catch (error){
         return{
             error : "Failed to copy a list."
